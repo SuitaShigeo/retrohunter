@@ -1,12 +1,14 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowDown, Sparkles } from "lucide-react";
-import { products } from "@/lib/data";
+import { getProducts } from "@/lib/google-sheets";
 import { Button } from "@/components/ui/Button";
-import { ProductCard } from "@/components/ProductCard";
 import ProductFeed from "@/components/ProductFeed";
 
-export default function Home() {
+export const revalidate = 3600; // ISR: Revalidate every 1 hour
+
+export default async function Home() {
+  const products = await getProducts();
   const featuredProducts = products.filter((p) => p.isFeatured).slice(0, 4);
 
   return (
@@ -54,10 +56,10 @@ export default function Home() {
             FEATURED DROPS
           </div>
           <h2 className="text-3xl font-black text-foreground md:text-5xl tracking-tight">
-            Editor's Picks
+            Editor&apos;s Picks
           </h2>
           <p className="mt-4 text-gray-400 max-w-xl mx-auto">
-            Hand-selected gems from our curators. These rare finds won't last long.
+            Hand-selected gems from our curators. These rare finds won&apos;t last long.
           </p>
         </div>
 
@@ -106,7 +108,7 @@ export default function Home() {
             </div>
           </div>
 
-          <ProductFeed />
+          <ProductFeed initialProducts={products} />
         </div>
       </section>
     </div>

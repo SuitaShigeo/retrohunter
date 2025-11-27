@@ -45,10 +45,18 @@ export function ProductCard({ product }: ProductCardProps) {
                 </h3>
                 <div className="flex items-end justify-between">
                     <div>
-                        <p className="text-xl font-bold text-white">${product.priceUsd}</p>
-                        <p className="text-xs text-gray-500">
-                            ¥{product.priceYen.toLocaleString()}
-                        </p>
+                        {product.priceUsd > 0 ? (
+                            <>
+                                <p className="text-xl font-bold text-white">${product.priceUsd}</p>
+                                <p className="text-xs text-gray-500">
+                                    ¥{product.priceYen.toLocaleString()}
+                                </p>
+                            </>
+                        ) : (
+                            <span className="inline-block rounded-full bg-primary/20 px-3 py-1 text-sm font-medium text-primary">
+                                View Price
+                            </span>
+                        )}
                     </div>
                     <Button variant="secondary" size="sm" className="rounded-full">
                         Details <ArrowRight className="ml-2 h-4 w-4" />

@@ -2,20 +2,24 @@
 
 import { useState, useMemo } from "react";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { products } from "@/lib/data";
+import { Product } from "@/lib/data";
 import { Button } from "@/components/ui/Button";
 import { ProductCard } from "@/components/ProductCard";
 
 type Category = "All" | "Camera" | "Game" | "Watch";
 type SortOption = "newest" | "price_asc" | "price_desc";
 
-export default function ProductFeed() {
+interface ProductFeedProps {
+    initialProducts: Product[];
+}
+
+export default function ProductFeed({ initialProducts }: ProductFeedProps) {
     const [searchQuery, setSearchQuery] = useState("");
     const [selectedCategory, setSelectedCategory] = useState<Category>("All");
     const [sortBy, setSortBy] = useState<SortOption>("newest");
 
     const filteredProducts = useMemo(() => {
-        let result = [...products];
+        let result = [...initialProducts];
 
         // Filter by Category
         if (selectedCategory !== "All") {
@@ -45,7 +49,7 @@ export default function ProductFeed() {
         }
 
         return result;
-    }, [searchQuery, selectedCategory, sortBy]);
+    }, [initialProducts, searchQuery, selectedCategory, sortBy]);
 
     return (
         <div className="space-y-8">
@@ -114,7 +118,7 @@ export default function ProductFeed() {
                     <Search className="mb-4 h-12 w-12 text-gray-600" />
                     <h3 className="mb-2 text-xl font-bold text-foreground">No items found</h3>
                     <p className="text-gray-400">
-                        Try adjusting your search or filters to find what you're looking for.
+                        Try adjusting your search or filters to find what you&apos;re looking for.
                     </p>
                     <Button
                         variant="outline"

@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, ShieldCheck, ChevronRight, Sparkles } from "lucide-react";
-import { products, getAffiliateLink } from "@/lib/data";
+import { ExternalLink, ShieldCheck, ChevronRight, Sparkles } from "lucide-react";
+import { getProducts, getProductById } from "@/lib/google-sheets";
+import { getAffiliateLink } from "@/lib/data";
 import { Button } from "@/components/ui/Button";
 import type { Metadata } from "next";
+
+export const revalidate = 3600; // ISR: Revalidate every 1 hour
 
 interface ProductPageProps {
     params: Promise<{
@@ -14,7 +17,7 @@ interface ProductPageProps {
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
     const { id } = await params;
-    const product = products.find((p) => p.id === id);
+    const product = await getProductById(id);
 
     if (!product) {
         return {
@@ -41,6 +44,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 }
 
 export async function generateStaticParams() {
+    const products = await getProducts();
     return products.map((product) => ({
         id: product.id,
     }));
@@ -48,6 +52,7 @@ export async function generateStaticParams() {
 
 export default async function ProductPage({ params }: ProductPageProps) {
     const { id } = await params;
+    const products = await getProducts();
     const product = products.find((p) => p.id === id);
 
     if (!product) {
@@ -130,12 +135,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         </h1>
 
                         <div className="mb-8 flex items-baseline gap-4">
-                            <span className="text-4xl font-bold text-foreground">
-                                ${product.priceUsd.toLocaleString()}
-                            </span>
-                            <span className="text-xl text-gray-500">
-                                (¥{product.priceYen.toLocaleString()})
-                            </span>
+                            {product.priceUsd > 0 ? (
+                                <>
+                                    <span className="text-4xl font-bold text-foreground">
+                                        ${product.priceUsd.toLocaleString()}
+                                    </span>
+                                    <span className="text-xl text-gray-500">
+                                        (¥{product.priceYen.toLocaleString()})
+                                    </span>
+                                </>
+                            ) : (
+                                <span className="inline-block rounded-full bg-primary/20 px-4 py-2 text-lg font-medium text-primary">
+                                    Check Availability
+                                </span>
+                            )}
                         </div>
 
                         <div className="mb-8 rounded-xl border border-white/10 bg-card p-6">
@@ -157,12 +170,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
-                                    Buy from Japan
+                                    {product.priceUsd > 0 ? "Buy from Japan" : "Check Price at Shop"}
                                     <ExternalLink className="h-5 w-5" />
                                 </a>
                             </Button>
                             <p className="text-center text-xs text-gray-500">
-                                *You will be redirected to our trusted partner site.
+                                *You will be redirected to our trusted partner site (Buyee).
                             </p>
                         </div>
 
@@ -200,7 +213,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
                                         <h3 className="mt-1 text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
                                             {related.title}
                                         </h3>
-                                        <p className="mt-1 text-lg font-bold text-foreground">${related.priceUsd}</p>
+                                        {related.priceUsd > 0 ? (
+                                            <p className="mt-1 text-lg font-bold text-foreground">${related.priceUsd}</p>
+                                        ) : (
+                                            <span className="mt-1 inline-block text-sm font-medium text-primary">View Price</span>
+                                        )}
                                     </div>
                                 </Link>
                             ))}
@@ -221,7 +238,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                     >
-                        Buy from Japan (${product.priceUsd})
+                        {product.priceUsd > 0
+                            ? `Buy from Japan ($${product.priceUsd})`
+                            : "Check Price at Shop"}
                         <ExternalLink className="h-4 w-4" />
                     </a>
                 </Button>
