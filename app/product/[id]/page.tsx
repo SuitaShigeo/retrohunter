@@ -1,8 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, ShieldCheck, ChevronRight } from "lucide-react";
+import { ArrowLeft, ExternalLink, ShieldCheck, ChevronRight, Sparkles } from "lucide-react";
 import { products, getAffiliateLink } from "@/lib/data";
+import { Button } from "@/components/ui/Button";
 import type { Metadata } from "next";
 
 interface ProductPageProps {
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
 
     return {
         title: `${product.title} - Japan Retro Hunt`,
-        description: `Buy ${product.title} directly from Japan. Best condition retro gears.`,
+        description: `Buy ${product.title} directly from Japan. ${product.description}`,
         openGraph: {
             title: `${product.title} - Japan Retro Hunt`,
             description: `Buy ${product.title} directly from Japan. Best condition retro gears.`,
@@ -74,7 +75,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     };
 
     return (
-        <div className="min-h-screen bg-[#0a0a0a] pb-24 lg:pb-12">
+        <div className="min-h-screen bg-background pb-24 lg:pb-12">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -83,16 +84,16 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <div className="container mx-auto px-4 py-8 lg:py-12">
                 {/* Breadcrumbs */}
                 <nav className="mb-8 flex items-center gap-2 text-sm text-gray-400">
-                    <Link href="/" className="hover:text-white">Home</Link>
+                    <Link href="/" className="hover:text-foreground transition-colors">Home</Link>
                     <ChevronRight className="h-4 w-4" />
-                    <Link href={`/?category=${product.category}`} className="hover:text-white">{product.category}</Link>
+                    <Link href={`/?category=${product.category}`} className="hover:text-foreground transition-colors">{product.category}</Link>
                     <ChevronRight className="h-4 w-4" />
-                    <span className="text-white truncate">{product.title}</span>
+                    <span className="text-foreground truncate">{product.title}</span>
                 </nav>
 
                 <div className="grid gap-12 lg:grid-cols-2">
                     {/* Image Section */}
-                    <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+                    <div className="relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-card">
                         <Image
                             src={product.imageUrl}
                             alt={product.title}
@@ -105,27 +106,31 @@ export default async function ProductPage({ params }: ProductPageProps) {
                                 Mint Condition
                             </div>
                         )}
+                        {product.isFeatured && (
+                            <div className="absolute top-4 right-4 inline-flex items-center gap-1 rounded-full bg-primary/90 px-3 py-1 text-xs font-bold text-primary-foreground uppercase tracking-wider shadow-lg">
+                                <Sparkles className="h-3 w-3" />
+                                Featured
+                            </div>
+                        )}
                     </div>
 
                     {/* Details Section */}
                     <div className="flex flex-col justify-center">
                         <div className="mb-4 flex items-center gap-4">
-                            <span className="rounded-full bg-red-500/10 px-3 py-1 text-xs font-bold text-red-500 uppercase tracking-wider">
+                            <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary uppercase tracking-wider">
                                 {product.category}
                             </span>
-                            {product.isFeatured && (
-                                <span className="rounded-full bg-yellow-500/10 px-3 py-1 text-xs font-bold text-yellow-500 uppercase tracking-wider">
-                                    Featured Drop
-                                </span>
-                            )}
+                            <span className="text-sm text-gray-400">
+                                Condition: <span className="text-foreground font-medium">{product.condition}</span>
+                            </span>
                         </div>
 
-                        <h1 className="mb-4 text-4xl font-black tracking-tight text-white sm:text-5xl">
+                        <h1 className="mb-4 text-4xl font-black tracking-tight text-foreground sm:text-5xl">
                             {product.title}
                         </h1>
 
                         <div className="mb-8 flex items-baseline gap-4">
-                            <span className="text-4xl font-bold text-white">
+                            <span className="text-4xl font-bold text-foreground">
                                 ${product.priceUsd.toLocaleString()}
                             </span>
                             <span className="text-xl text-gray-500">
@@ -133,8 +138,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
                             </span>
                         </div>
 
-                        <div className="mb-8 rounded-xl border border-white/10 bg-white/5 p-6">
-                            <h3 className="mb-2 text-lg font-bold text-white">Why this is cool</h3>
+                        <div className="mb-8 rounded-xl border border-white/10 bg-card p-6">
+                            <h3 className="mb-2 text-lg font-bold text-foreground">Why this is cool</h3>
                             <p className="text-gray-300 leading-relaxed">
                                 {product.description}
                             </p>
@@ -142,15 +147,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
                         {/* Desktop Buy Button */}
                         <div className="hidden flex-col gap-4 lg:flex">
-                            <a
-                                href={getAffiliateLink(product.affiliateLink)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-red-600 px-8 py-4 text-lg font-bold text-white transition-all hover:bg-red-700 hover:shadow-[0_0_30px_rgba(255,0,51,0.4)]"
+                            <Button
+                                size="lg"
+                                className="w-full gap-2 shadow-[0_0_30px_rgba(255,0,51,0.4)]"
+                                asChild
                             >
-                                Buy from Japan
-                                <ExternalLink className="h-5 w-5" />
-                            </a>
+                                <a
+                                    href={getAffiliateLink(product.affiliateLink)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    Buy from Japan
+                                    <ExternalLink className="h-5 w-5" />
+                                </a>
+                            </Button>
                             <p className="text-center text-xs text-gray-500">
                                 *You will be redirected to our trusted partner site.
                             </p>
@@ -166,13 +176,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 {/* Related Products */}
                 {relatedProducts.length > 0 && (
                     <div className="mt-24 border-t border-white/10 pt-16">
-                        <h2 className="mb-8 text-2xl font-bold text-white">You might also like</h2>
+                        <h2 className="mb-8 text-2xl font-bold text-foreground">You might also like</h2>
                         <div className="grid gap-6 sm:grid-cols-3">
                             {relatedProducts.map((related) => (
                                 <Link
                                     key={related.id}
                                     href={`/product/${related.id}`}
-                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-white/5 transition-all hover:-translate-y-1 hover:border-red-500/50"
+                                    className="group relative overflow-hidden rounded-xl border border-white/10 bg-card transition-all duration-300 hover:-translate-y-1 hover:border-primary/50 hover:shadow-[0_0_20px_rgba(255,0,51,0.2)]"
                                 >
                                     <div className="aspect-[4/3] overflow-hidden">
                                         <Image
@@ -184,10 +194,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
                                         />
                                     </div>
                                     <div className="p-4">
-                                        <h3 className="mb-1 text-sm font-bold text-white group-hover:text-red-500 truncate">
+                                        <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                                            {related.category}
+                                        </span>
+                                        <h3 className="mt-1 text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
                                             {related.title}
                                         </h3>
-                                        <p className="text-sm text-gray-400">${related.priceUsd}</p>
+                                        <p className="mt-1 text-lg font-bold text-foreground">${related.priceUsd}</p>
                                     </div>
                                 </Link>
                             ))}
@@ -197,16 +210,21 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </div>
 
             {/* Mobile Sticky Buy Button */}
-            <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-black/90 p-4 backdrop-blur-lg lg:hidden">
-                <a
-                    href={getAffiliateLink(product.affiliateLink)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-red-600 px-6 py-3 text-base font-bold text-white shadow-[0_0_20px_rgba(220,38,38,0.4)] transition-all active:scale-95"
+            <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-background/90 p-4 backdrop-blur-lg lg:hidden">
+                <Button
+                    size="lg"
+                    className="w-full gap-2 shadow-[0_0_20px_rgba(255,0,51,0.4)] active:scale-95"
+                    asChild
                 >
-                    Buy from Japan (${product.priceUsd})
-                    <ExternalLink className="h-4 w-4" />
-                </a>
+                    <a
+                        href={getAffiliateLink(product.affiliateLink)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Buy from Japan (${product.priceUsd})
+                        <ExternalLink className="h-4 w-4" />
+                    </a>
+                </Button>
             </div>
         </div>
     );

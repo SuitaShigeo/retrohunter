@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Product } from "@/lib/data";
+import { Button } from "@/components/ui/Button";
 
 interface ProductCardProps {
     product: Product;
@@ -9,45 +10,51 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
     return (
-        <div className="group relative overflow-hidden rounded-lg border border-white/10 bg-white/5 transition-all hover:border-red-500/50 hover:shadow-[0_0_20px_rgba(255,0,51,0.15)]">
-            <div className="aspect-square relative overflow-hidden">
+        <Link
+            href={`/product/${product.id}`}
+            className="group relative block overflow-hidden rounded-xl border border-white/10 bg-card transition-all hover:border-primary/50 hover:shadow-[0_0_30px_rgba(220,38,38,0.2)]"
+        >
+            <div className="aspect-[4/3] overflow-hidden">
                 <Image
                     src={product.imageUrl}
                     alt={product.title}
-                    fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    width={600}
+                    height={450}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                {product.isFeatured && (
+                    <span className="absolute right-3 top-3 rounded-full bg-yellow-500 px-2 py-1 text-xs font-bold text-black shadow-lg">
+                        FEATURED
+                    </span>
+                )}
+                {product.condition === "Mint" && (
+                    <span className="absolute left-3 top-3 rounded-full bg-green-500 px-2 py-1 text-xs font-bold text-black shadow-lg">
+                        MINT
+                    </span>
+                )}
             </div>
-
             <div className="p-4">
                 <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-medium text-red-500 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-primary uppercase tracking-wider">
                         {product.category}
                     </span>
-                    <span className="text-sm text-gray-400">
-                        ¥{product.priceYen.toLocaleString()}
-                    </span>
+                    <span className="text-xs text-gray-400">{product.condition}</span>
                 </div>
-
-                <h3 className="mb-1 text-lg font-bold text-white line-clamp-1">
+                <h3 className="mb-2 text-lg font-bold text-white transition-colors group-hover:text-primary">
                     {product.title}
                 </h3>
-
-                <div className="flex items-center justify-between mt-4">
-                    <span className="text-xl font-bold text-white">
-                        ${product.priceUsd.toLocaleString()}
-                    </span>
-
-                    <Link
-                        href={`/product/${product.id}`}
-                        className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600 hover:text-white group-hover:bg-red-600"
-                    >
-                        Details
-                        <ArrowRight className="h-4 w-4" />
-                    </Link>
+                <div className="flex items-end justify-between">
+                    <div>
+                        <p className="text-xl font-bold text-white">${product.priceUsd}</p>
+                        <p className="text-xs text-gray-500">
+                            ¥{product.priceYen.toLocaleString()}
+                        </p>
+                    </div>
+                    <Button variant="secondary" size="sm" className="rounded-full">
+                        Details <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
                 </div>
             </div>
-        </div>
+        </Link>
     );
 }
